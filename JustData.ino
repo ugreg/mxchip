@@ -27,6 +27,7 @@ static void InitWifi()
         hasWifi = true;
         Screen.print(2, "Connected! \r\n");
         delay(1000);
+        Screen.clean();
     }
     else {
         hasWifi = false;
@@ -46,6 +47,9 @@ void setup()
     }
     else {
         Screen.print("start prgm...");
+        delay(500);
+        Screen.draw(0, 0, 128, 8, AzureBMP);
+        delay(1000);
         i2c = new DevI2C(D14, D15);
 
         sensorTempHumidity = new HTS221Sensor(*i2c);
@@ -57,8 +61,6 @@ void loop()
 {
     if (hasWifi)
     {
-        Screen.draw(0, 0, 128, 8, AzureBMP);
-        Screen.clean();
         delay(1000);
 
         sensorTempHumidity->reset();
@@ -78,14 +80,12 @@ void loop()
 
         char tbuf[10];
         char hbuf[10];
-        sprintf(tbuf, "%f", temperature);
+        sprintf(tbuf, "Tenp %f", temperature);
         Screen.print(1, tbuf);
-        sprintf(hbuf, "%f", humidity);
+        sprintf(hbuf, "Humid %f", humidity);
         Screen.print(2, hbuf);
 
         delay(4000);
-
-        Screen.clean();
     }
 }
 
