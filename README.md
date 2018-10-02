@@ -9,4 +9,4 @@ Result
 <img src="imgs/md/hello-oled.gif">
 
 # References
-- In progress . . .
+- [Graphics API](https://github.com/tobybrad/mxchip_iotdevkit_gfx)
