@@ -26,6 +26,7 @@ static void InitWifi()
         Screen.print(1, ip.get_address());
         hasWifi = true;
         Screen.print(2, "Connected! \r\n");
+        delay(1000);
     }
     else {
         hasWifi = false;
@@ -60,6 +61,7 @@ void loop()
         Screen.clean();
         delay(1000);
 
+        sensorTempHumidity->reset();
         sensorTempHumidity->getTemperature(&temperature);
         sensorTempHumidity->getHumidity(&humidity);
         Serial.print("Temperature: ");
@@ -74,9 +76,12 @@ void loop()
 
         char *serialized_string = json_serialize_to_string_pretty(root_value);
 
-        char buf[10];
-        sprintf(buf, "%f", temperature);
-        Screen.print(1, buf);
+        char tbuf[10];
+        char hbuf[10];
+        sprintf(tbuf, "%f", temperature);
+        Screen.print(1, tbuf);
+        sprintf(hbuf, "%f", humidity);
+        Screen.print(2, hbuf);
 
         delay(4000);
 
