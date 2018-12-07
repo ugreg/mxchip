@@ -18,11 +18,11 @@ HTS221Sensor *sensorTempHumidity;
 
 float humidity = 0;
 float temperature = 0;
-static bool hasWifi = false;
+bool hasWifi = false;
 
-static void InitWifi()
+void InitWifi()
 {
-    Screen.print(2, "Connecting Wifi...");
+    Screen.print(2, "Getting  Wifi...");
 
     if (WiFi.begin() == WL_CONNECTED) {
         IPAddress ip = WiFi.localIP();
@@ -45,10 +45,7 @@ void setup()
     hasWifi = false;
     InitWifi();
 
-    if (hasWifi == true) {
-        return;
-    }
-    else {
+    if (hasWifi) {
         Screen.print("start prgm...");
         delay(500);
         Screen.draw(0, 0, 128, 8, AzureBMP);
@@ -58,11 +55,14 @@ void setup()
         sensorTempHumidity = new HTS221Sensor(*i2c);
         sensorTempHumidity->init(NULL);
     }
+    else {
+        return;
+    }
 }
 
 void loop()
 {
-    if (hasWifi == false)
+    if (hasWifi == true)
     {
         delay(1000);
 
@@ -91,12 +91,12 @@ void loop()
         char jsonbuf[256];
         snprintf(jsonbuf, 256, "JSON %s", serialized_string);
 
-        char payload[MAMESSAGE_MAX_LENX];
-        EVENT_INSTANCE *message = DevKitMQTTClient_Event_Generate(payload, MESSAGE);
-        DevKitMQTTClient_SendEventInstance(message);
+        // char payload[MAMESSAGE_MAX_LENX];
+        // EVENT_INSTANCE *message = DevKitMQTTClient_Event_Generate(payload, MESSAGE);
+        // DevKitMQTTClient_SendEventInstance(message);
 
-        json_free_serialized_string(serialized_string);
-        json_value_free(root_value);
+        // json_free_serialized_string(serialized_string);
+        // json_value_free(root_value);
 
         delay(4000);
     }
