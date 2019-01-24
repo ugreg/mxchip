@@ -2,7 +2,6 @@
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
 #include "DevKitMQTTClient.h"
-#include "GFXDisplay.h" // 3rd party graphics lib, no work :(?
 #include "HTS221Sensor.h" // temp and humid
 #include "LPS22HBSensor.h" // pressure
 #include "parson.h"
