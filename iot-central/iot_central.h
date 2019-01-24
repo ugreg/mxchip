@@ -9,12 +9,12 @@
 #include <Arduino.h>
 #endif
 
-#ifndef _cpluscplus
 // TODO: consider replacing extern c with cpp, what are the implications
 // https://stackoverflow.com/questions/31903594/typedef-struct-in-c-vs-c
+#ifdef __cplusplus
 extern "C"
 {
-    #endif
+#endif
     typedef struct IOT_CENTRAL_HTTP_PROXY_OPTIONS_TAG
     {
         const char *host_address;
@@ -82,8 +82,46 @@ extern "C"
     int iot_central_send_data(IOTContext context, const char *payload, unsigned length, void *app_context);
     int iot_central_send_state(IOTContext context, const char *payload, unsigned length, void *app_context);
     int iot_central_send_event(IOTContext context, const char *payload, unsigned length, void *app_context);
-    /* eventNames: ConnectionStatus MessageSent MessageReceived Command SettingsUpdated Error */
     int iot_central_send_property(IOTContext context, const char *payload, unsigned length, void *app_context);
-}
 
-#endif AZURE_IOT_CENTRAL_API
+    typedef void(*IOTCallback)(IOTContext, IOTCallbackInfo*);
+
+    /* eventNames: ConnectionStatus MessageSent MessageReceived Command SettingsUpdated Error */
+    int iot_central_on_event(IOTContext context, const char *event_name, IOTCallback callback, void *app_context);
+
+    // call this after connect
+    int iot_central_on_connect(IOTContext context);
+
+    #ifdef TARGET_MXCHIP_AZ3166
+        #define SERIAL_PRINT Serial.printf
+    #else
+        #define SERIAL_PRINT printf
+    #endif
+
+    #define SERIAL_VERBOSE_LOGGING_ENABLED 1
+
+    #ifndef LOG_VERBOSE
+        #if SERIAL_VERBOSE_LOGGING_ENABLED != 1
+            #define LOG_VERBOSE(...)
+        #else
+            #define LOG_VERBOSE(...) \
+                do { \
+                    SERIAL_PRINT("  - "); \
+                    SERIAL_PRINT(__VA_ARGS__); \
+                    SERIAL_PRINT("\r\n"); \
+                } while(0)
+        #endif
+
+        #define LOG_ERROR(...) \
+            do { \
+                SERIAL_PRINT("X - Error at %s:%d\r\n\t", __FILE__, __LINE__); \
+                SERIAL_PRINT(__VA_ARGS__); \
+                SERIAL_PRINT("\r\n"); \
+            } while(0)
+        #endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // AZURE_IOT_CENTRAL_API
