@@ -85,3 +85,5 @@ extern "C"
     /* eventNames: ConnectionStatus MessageSent MessageReceived Command SettingsUpdated Error */
     int iot_central_send_property(IOTContext context, const char *payload, unsigned length, void *app_context);
 }
+
+#endif AZURE_IOT_CENTRAL_API
