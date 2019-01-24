@@ -21,7 +21,7 @@ extern "C"
         int port;
         const char *username;
         const char *password;
-    } IOT_HTTP_PROXY_OPTIONS;
+    } IOT_CENTRAL_HTTP_PROXY_OPTIONS;
 
     typedef struct IOT_CallbackInfo_TAG
     {
@@ -69,5 +69,19 @@ extern "C"
     #define IOT_CENTRAL_MESSAGE_ABANDONED  0x04
     typedef short IOTMessageStatus;
 
-
+    int iot_central_set_logging(IOTLogLevel *level);
+    int iot_central_init_context(IOTContext *context);
+    int iot_central_free_context(IOTContext *context);
+    int iot_central_connect(IOTContext *context, const char *scope, const char *keyORCert,
+                            const char *device_id, IOTConnectType);
+    int iot_central_dissconnect(IOTContext context);
+    int iot_central_set_global_azure_endpoint(IOTContext context, const char *endpoint_url);
+    int iot_central_set_protocol(IOTContext context, IOTProtocol protocol);
+    int iot_central_set_trusted_certs(IOTContext context, const char *certs);
+    int iot_central_set_proxy(IOTContext context, IOT_CENTRAL_HTTP_PROXY_OPTIONS proxy);
+    int iot_central_send_data(IOTContext context, const char *payload, unsigned length, void *app_context);
+    int iot_central_send_state(IOTContext context, const char *payload, unsigned length, void *app_context);
+    int iot_central_send_event(IOTContext context, const char *payload, unsigned length, void *app_context);
+    /* eventNames: ConnectionStatus MessageSent MessageReceived Command SettingsUpdated Error */
+    int iot_central_send_property(IOTContext context, const char *payload, unsigned length, void *app_context);
 }
