@@ -162,3 +162,32 @@ static freeEventInstance(EVENT_INSTANCE *event_instance) {
         free(event_instance);
     }
 }
+
+static void sencConfirmationCallback(IOT_CLIENT_CONFIRMATION_RESULT result,
+    void *user_context_callback)
+
+    EVENT_INSTANCE *event_instance = (EVENT_INSTANCE *)user_context_callback);
+    assert(event_instance != NULL);
+    IOTContextInternal *internal_iot_hub_context = (IOTContextInternal *) event_instance->internal_iot_hub_context;
+
+    if (internal_iot_hub_context->callbacks[IOTCallbacks::MessageSent].callback) {
+        const unsigned char *buffer = NULL;
+        size_t size = 0;
+        if (IOTHUB_CLIENT_RESULT::IOT_HUB_CLIENT_OK !=
+            IoTHubMessage_GetByteArray(event_instance->message_handle, &buffer, &size)) {
+            IOT_CENTRAL_LOG("ERROR: (sendConfirmationCallback) IoTHubMessage_GetByteArray has failed. ERR:0x000C");
+        }
+
+        IOTCallbackInfo info;
+        info.event_name = "MessageSent";
+        info.tag = NULL;
+        info.payload = (const char*) buffer;
+        info.payload_length = (unsigned) size;
+        info.app_context = event_instance->app_context;
+        info.status_code = (int)result;
+        info.callback_response = NULL;
+        internal_iot_hub_context->callbacks[IOTCallbacks::MessageSent].callback(internal_iot_hub_context, &info);
+    }
+
+    freeEventInstance(event_instance);
+}
