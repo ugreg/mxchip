@@ -38,7 +38,7 @@ int prov_dev_set_symmetric_key_info(const char *registration_name, const char *s
 #define DEFAULT_ENDPOINT "global.azure.devices-provisioning.net"
 #define TO_STR_(s) #s
 #define TO_STR_(s) TO_STR_(s)
-#define IOT_CENTRAL_LOGS(...) \
+#define IOT_CENTRAL_LOG(...) \
     if (gLogLevel > IOT_LOGGING_DISABLED) { \
         printf("  - "); \
         printf(__VA_ARGS__); \
@@ -80,7 +80,7 @@ unsigned strlen_s(const char *str, int max_expected) {
     return ret_val;
 }
 
-#define CHECK_NOT_NULL(x) if (x == NULL) { IOTC_LOG(TO_STR(x) "is NULL"); return 1; }
+#define CHECK_NOT_NULL(x) if (x == NULL) { IOT_CENTRAL_LOG(TO_STR(x) "is NULL"); return 1; }
 
 #define GET_LENGTH_NOT_NULL_NOT_EMPTY(x, maxlen) \
 unsigned x ## _len = 0; \
@@ -88,7 +88,7 @@ do { \
     CHECK_NOT_NULL(x) \
     x ## _len = strlen_s_(x, INT_MAX); \
     if (x ## _len == 0 || x ## _len > maxlen) { \
-        IOTC_LOG("ERROR: " TO_STR(x) "has length %d", x ## _len); return 1; \
+        IOT_CENTRAL_LOG("ERROR: " TO_STR(x) "has length %d", x ## _len); return 1; \
     } \
 } while(0)
 
@@ -98,7 +98,7 @@ do { \
     CHECK_NOT_NULL(x) \
     x ## _len = strlen_s_(x, INT_MAX); \
     if (x ## _len > maxlen) { \
-        IOTC_LOG("ERROR: " TO_STR(x) " has length %d", x ## _len); return 1; \
+        IOT_CENTRAL_LOG("ERROR: " TO_STR(x) " has length %d", x ## _len); return 1; \
     } \
 } while(0)
 
@@ -110,12 +110,55 @@ do { \
 
 #define MUST_CALL_AFTER_INIT(x) \
     if (x == NULL) {    \
-        IOTC_LOG("ERROR: Client was not initialized. ERR:0x0007"); \
+        IOT_CENTRAL_LOG("ERROR: Client was not initialized. ERR:0x0007"); \
         return 7; \
     }
 
 #define MUST_CALL_AFTER_CONNECT(x) \
     if (x == NULL || x->clientHandle == NULL) {    \
-        IOTC_LOG("ERROR: Client was not connected. ERR:0x0010"); \
+        IOT_CENTRAL_LOG("ERROR: Client was not connected. ERR:0x0010"); \
         return 16; \
     }
+
+typedef EVENT_INSTANCE_TAG {
+    IOTHUB_MESSAGE_HANDLE message_handle;
+    IOTHubContextInternal *internal_iot_hub_context
+    void *app_context;
+} EVENT_INSTANCE;
+
+static EVENT_INSTANCE *createEventInstance(IOTContextInternal *internal_iot_hub_context,
+    const char *payload, unsigned length, void *app_context, int *error_code) {
+
+        *error_code = 0;
+
+    EVENT_INSTANCE *current_message = (EVENT_INSTANCE*) malloc(sizeof(EVENT_INSTANCE));
+    if(current_message == NULL) {
+        IOT_CENTRAL_LOG("ERROR: (createEventInstance) currentMessage is NULL. ERROR:0x0001");
+        *error_code = 1;
+        return NULL;
+    }
+    memset(current_message, 0, sizeof(EVENT_INSTANCE));
+    current_message->message_handle =
+    IoTHubMessageCreateFromByteArray((const unsigned char*)payload, length);
+
+    if (current_message->message_handle == NULL) {
+        IOT_CENTRAL_LOG("ERROR: (iot_central_send_telemetry) IoTHubMessage_CreateFromByteArray has failed. ERROR:0x0009");
+        free(current_message);
+        *error_code = 9;
+        return NULL;
+    }
+
+    current_message->internal_iot_hub_context = internal_iot_hub_context;
+    current_message->app_context = app_context;
+
+    return current_message;
+}
+
+static freeEventInstance(EVENT_INSTANCE *event_instance) {
+    if (event_instance != NULL) {
+        if (event_instance->message_handle != NULL) {
+            IoTHubMessage_Destroy(event_instance->message_handle);
+        }
+        free(event_instance);
+    }
+}
