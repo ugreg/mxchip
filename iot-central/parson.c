@@ -2058,3 +2058,4 @@ void json_set_allocation_functions(JSON_Malloc_Function malloc_fun, JSON_Free_Fu
 void json_set_escape_slashes(int escape_slashes) {
     parson_escape_slashes = escape_slashes;
 }
+#endif // ESP_PLATFORM
