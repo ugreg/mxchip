@@ -17,11 +17,11 @@ namespace AzureIOTC
   class JSObject
   {
   private:
-    JSON_Value* value;
-    JSON_Object* object;
+    JSON_Value *value;
+    JSON_Object *object;
     bool isSubObject;
 
-    JSON_Object* toObject() {
+    JSON_Object *toObject() {
       object = json_value_get_object(value);
       if (object == NULL) {
         LOG_ERROR("JSON value is not an object");
