@@ -19,3 +19,17 @@ int prov_dev_set_symmetric_key_info(const char *registration_name, const char *s
 }
 #endif // TARGET_MXCHIP_AZ3166
 
+#ifdef ESP_PLATFORM
+#include "iothub_client.h"
+#include "iothub_message.h"
+#include "azure_c_shared_utility/threadapi.h"
+#include "azure_c_shared_utility/crt_abstractions.h"
+#include "azure_c_shared_utility/platform.h"
+#include "iothubtransportmqtt.h"
+#include "iothub_client_version.h"
+#include "iothub_device_client_ll.h"
+#include "iothub_client_options.h"
+#include "azure_prov_client/prov_device_ll_client.h"
+#include "azure_prov_client/prov_security_factory.h"
+#include "azure_prov_client/prov_transport_mqtt_client.h"
+#endif // ESP_PLATFORM
