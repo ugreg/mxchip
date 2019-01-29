@@ -226,4 +226,39 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT receiveMessageCallback
     return IOTHUBMESSAGE_ABANDONED;
 }
 
+static const char* empty_response = "{}";
+static int onCommand(const char *method_name, const unsigned char *payload,
+    size_t size, unsigned char **response, size_t *resp_size, void *userContextCallback) {
 
+    assert(response != NULL && resp_size != NULL);
+    *response = NULL;
+    *resp_size = 0;
+    IOTContextInternal *internal_iot_hub_context = (IOTContextInternal*)userContextCallback;
+    assert(internal_iot_hub_context != NULL);
+
+    if (internal_iot_hub_context->callbacks[IOTCallbacks::Command].callback) {
+        IOTCallbackInfo info;
+        info.event_name = "Command";
+        info.tag = method_name;
+        info.payload = (const char*) payload;
+        info.payload_length = (unsigned) size;
+        info.app_context = internal_iot_hub_context->callbacks[IOTCallbacks::Command].appContext;
+        info.status_code = 0;
+        info.callback_response = NULL;
+        internal_iot_hub_context->callbacks[IOTCallbacks::Command].callback(internal_iot_hub_context, &info);
+
+        if (info.callback_response != NULL) {
+            *response = (unsigned char*) info.callback_response;
+            *resp_size = strlen((char*) info.callback_response);
+        } else {
+            char *resp = (char*) malloc(3);
+            resp[2] = 0;
+            memcpy(resp, empty_response, 2);
+            *response = (unsigned char*)resp;
+            *resp_size = 2;
+        }
+        return 200;
+    }
+
+    return 500;
+}
