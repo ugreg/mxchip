@@ -191,3 +191,39 @@ static void sencConfirmationCallback(IOT_CLIENT_CONFIRMATION_RESULT result,
 
     freeEventInstance(event_instance);
 }
+
+#define CONVERT_TO_IOTHUB_MESSAGE(x) \
+  (x == IOT_CENTRAL_MESSAGE_ACCEPTED ? IOTHUBMESSAGE_ACCEPTED : \
+  (x == IOT_CENTRAL_MESSAGE_REJECTED ? IOTHUBMESSAGE_REJECTED : IOTHUBMESSAGE_ABANDONED))
+
+static IOTHUBMESSAGE_DISPOSITION_RESULT receiveMessageCallback
+    (IOTHUB_MESSAGE_HANDLE message, void *userContextCallback) {
+    IOTContextInternal *internal_iot_hub_context = (IOTContextInternal*)userContextCallback;
+    assert(internal_iot_hub_context != NULL);
+
+    if (internal_iot_hub_context->callbacks[IOTCallbacks::MessageReceived].callback) {
+        const unsigned char *buffer = NULL;
+        size_t size = 0;
+        if (IOTHUB_CLIENT_RESULT::IOTHUB_CLIENT_OK !=
+          IoTHubMessage_GetByteArray(message, &buffer, &size)) {
+            IOTC_LOG("ERROR: (receiveMessageCallback) IoTHubMessage_GetByteArray has failed. ERR:0x000C");
+        }
+
+        IOTCallbackInfo info;
+        info.event_name = "MessageReceived";
+        info.tag = NULL;
+        info.payload = (const char*) buffer;
+        info.payload_length = (unsigned) size;
+        info.app_context = internal_iot_hub_context->callbacks[IOTCallbacks::MessageReceived].app_context;
+        info.status_code = 0;
+        info.callback_response = NULL;
+        internal_iot_hub_context->callbacks[IOTCallbacks::MessageReceived].callback(internal_iot_hub_context, &info);
+        if (info.status_code != 0) {
+            return CONVERT_TO_IOTHUB_MESSAGE(info.status_code);
+        }
+        return IOTHUBMESSAGE_ACCEPTED;
+    }
+    return IOTHUBMESSAGE_ABANDONED;
+}
+
+
