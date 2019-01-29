@@ -262,3 +262,36 @@ static int onCommand(const char *method_name, const unsigned char *payload,
 
     return 500;
 }
+
+/* MessageSent */
+static void deviceTwinConfirmationCallback(int status_code, void* userContextCallback) {
+    // TODO: use status code
+    sendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_OK, userContextCallback);
+}
+
+#define CONVERT_TO_IOT_CENTRAL_CONNECT_ENUM(x) \
+  ( x == IOTHUB_CLIENT_CONNECTION_EXPIRED_SAS_TOKEN ? IOT_CENTRAL_CONNECTION_EXPIRED_SAS_TOKEN : ( \
+      x == IOTHUB_CLIENT_CONNECTION_RETRY_EXPIRED ? IOT_CENTRAL_CONNECTION_RETRY_EXPIRED : (   \
+        x == IOTHUB_CLIENT_CONNECTION_DEVICE_DISABLED ? IOT_CENTRAL_CONNECTION_DEVICE_DISABLED : ( \
+          x == IOTHUB_CLIENT_CONNECTION_BAD_CREDENTIAL ? IOT_CENTRAL_CONNECTION_BAD_CREDENTIAL : ( \
+            x == IOTHUB_CLIENT_CONNECTION_NO_NETWORK ? IOT_CENTRAL_CONNECTION_NO_NETWORK : ( \
+              x == IOTHUB_CLIENT_CONNECTION_COMMUNICATION_ERROR ? IOT_CENTRAL_CONNECTION_COMMUNICATION_ERROR : IOT_CENTRAL_CONNECTION_OK \
+            ))))))
+
+static void connectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result,
+    IOTHUB_CLIENT_CONNECTION_STATUS_REASON reason, void* userContextCallback) {
+
+    IOTContextInternal *internal_iot_hub_context = (IOTContextInternal*)userContextCallback;
+    assert(internal_iot_hub_context != NULL);
+    if (internal_iot_hub_context->callbacks[IOTCallbacks::ConnectionStatus].callback) {
+        IOTCallbackInfo info;
+        info.event_name = "ConnectionStatus";
+        info.tag = NULL;
+        info.payload = NULL;
+        info.payload_length = 0;
+        info.app_context = internal_iot_hub_context->callbacks[IOTCallbacks::ConnectionStatus].app_context;
+        info.status_code = CONVERT_TO_IOT_CENTRAL_CONNECT_ENUM(reason);
+        info.callback_response = NULL;
+        internal_iot_hub_context->callbacks[IOTCallbacks::ConnectionStatus].callback(internal_iot_hub_context, &info);
+    }
+}
