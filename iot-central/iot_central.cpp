@@ -295,3 +295,24 @@ static void connectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result,
         internal_iot_hub_context->callbacks[IOTCallbacks::ConnectionStatus].callback(internal_iot_hub_context, &info);
     }
 }
+
+static const char *OOM_MESSAGE = "OutOfMemory while handling twin message echo.";
+void sendOnError(IOTContextInternal *internal_iot_hub_context, const char *message) {
+    if (internal_iot_hub_context->callbacks[IOTCallbacks::Error].callback) {
+        IOTCallbackInfo info;
+        info.event_name = "Error";
+        info.tag = message;
+        info.payload = NULL;
+        info.payload_length = 0;
+        info.app_context = internal_iot_hub_context->callbacks[IOTCallbacks::Error].app_context;
+        info.status_code = 1;
+        info.callback_response = NULL;
+        internal_iot_hub_context->callbacks[IOTCallbacks::Error].callback(internal_iot_hub_context, &info);
+    }
+}
+
+void echoDesired(IOTContextInternal *internal_iot_hub_context, const char *property_name,
+    const char *message, const char *status, int status_code) {
+
+        AzureIOTCentral::JSObject root... Dammit!!
+}

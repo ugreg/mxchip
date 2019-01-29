@@ -12,7 +12,7 @@
 
 #include "./iot_central.h"
 
-namespace AzureIOTC
+namespace AzureIOTCentral
 {
   class JSObject
   {
@@ -118,6 +118,6 @@ namespace AzureIOTC
       return json_object_get_number(object, name);
     }
   };
-} // namespace AzureIOTC
+} // namespace AzureIOTCentral
 
 #endif // AZURE_IOTC_API_JSON
