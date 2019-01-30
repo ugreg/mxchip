@@ -1,7 +1,7 @@
 // Copyright (c) Oguz Bastemur. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#include "./iotc_internal.h"
+#include "./iot_central_internal.h"
 
 /* extern */
 int iotc_on(IOTContext ctx, const char* eventName, IOTCallback callback, void* appContext) {

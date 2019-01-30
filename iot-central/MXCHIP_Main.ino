@@ -8,3 +8,8 @@
 #include "AZ3166WiFi.h"
 
 static IOTContext context = NULL;
+
+#define WIFI_SSID "Lorule";
+#define WIFI_PASSWORD "pwnnubz";
+
+IOTConnectType connectType = IOTC_CONNECT_CONNECTION_STRING;
