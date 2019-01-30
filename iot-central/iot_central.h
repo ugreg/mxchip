@@ -1,127 +1,191 @@
-#ifndef AZURE_IOT_CENTRAL_API
-#define AZURE_IOT_CENTRAL_API
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license.
 
-#ifndef ESP_PLATFORM
-#define TARGET_MXCHIP_AZ3166
-#endif
+#ifndef AZURE_IOTC_API
+#define AZURE_IOTC_API
 
-#ifndef TARGET_MXCHIP_AZ3166
+#ifdef TARGET_MXCHIP
 #include <Arduino.h>
 #endif
 
-// TODO: consider replacing extern c with cpp, what are the implications
-// https://stackoverflow.com/questions/31903594/typedef-struct-in-c-vs-c
+#define AZIOTC_MAJOR_VERSION 0
+#define AZIOTC_MINOR_VERSION 1
+#define AZIOTC_PATCH_VERSION 0
+#define AZIOTC_VERSION       \
+  TO_STRING(AZIOTC_MAJOR_VERSION) "." TO_STRING(AZIOTC_MINOR_VERSION) "." TO_STRING(AZIOTC_PATCH_VERSION)
+
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
-    typedef struct IOT_CENTRAL_HTTP_PROXY_OPTIONS_TAG
-    {
-        const char *host_address;
-        int port;
-        const char *username;
-        const char *password;
-    } IOT_CENTRAL_HTTP_PROXY_OPTIONS;
 
-    typedef struct IOT_CallbackInfo_TAG
-    {
-        const char *event_name;
-        const char *tag;
-        const char *payload;
-        unsigned payload_length;
+// ***** Type definitions *****
+typedef struct IOTC_HTTP_PROXY_OPTIONS_TAG
+{
+  const char* host_address;
+  int port;
+  const char* username;
+  const char* password;
+} IOTC_HTTP_PROXY_OPTIONS;
 
-        void *app_context;
+typedef struct IOTCallbackInfo_TAG {
+  const char* eventName;
+  const char* tag;
+  const char* payload;
+  unsigned    payloadLength;
 
-        int status_code;
-        void *callback_response;
-    } IOTCallbackInfo;
+  void *appContext;
 
-    typedef void* IOTContext;
+  int statusCode;
+  void *callbackResponse;
+} IOTCallbackInfo;
 
-    // TODO: hex to int
-    // ᕕ( ᐛ )ᕗ memory addresses!!!... no... just constants defined as hex instead of ints for some reason...
-    #define IOT_CENTRAL_PROTOCOL_MQTT 0x01
-    #define IOT_CENTRAL_PROTOCOL_AMQP 0x02
-    #define IOT_CENTRAL_PROTOCOL_HTTP 0x04
-    typedef short IOTProtocol;
+typedef void* IOTContext;
 
-    #define IOT_CENTRAL_LOGGING_DISABLED 0x01
-    #define IOT_CENTRAL_LOGGING_API_ONLY 0x02
-    #define IOT_CENTRAL_LOGGING_ALL      0x10
-    typedef short IOTLogLevel;
+// ***** Macro definitions *****
+#define IOTC_PROTOCOL_MQTT 0x01
+#define IOTC_PROTOCOL_AMQP 0x02
+#define IOTC_PROTOCOL_HTTP 0x04
+typedef short IOTProtocol;
 
-    #define IOT_CENTRAL_CONNECT_SYMM_KEY          0x01
-    #define IOT_CENTRAL_CONNECT_X509_CERT         0x02
-    #define IOT_CENTRAL_CONNECT_CONNECTION_STRING 0x04
-    typedef short IOTConnectType;
+#define IOTC_LOGGING_DISABLED 0x01
+#define IOTC_LOGGING_API_ONLY 0x02
+#define IOTC_LOGGING_ALL      0x10
+typedef short IOTLogLevel;
 
-    #define IOT_CENTRAL_CONNECTION_EXPIRED_SAS_TOKEN    0x01
-    #define IOT_CENTRAL_CONNECTION_DEVICE_DISABLED      0x02
-    #define IOT_CENTRAL_CONNECTION_BAD_CREDENTIAL       0x04
-    #define IOT_CENTRAL_CONNECTION_RETRY_EXPIRED        0x08
-    #define IOT_CENTRAL_CONNECTION_NO_NETWORK           0x10
-    #define IOT_CENTRAL_CONNECTION_COMMUNICATION_ERROR  0x20
-    #define IOT_CENTRAL_CONNECTION_OK                   0x40
-    typedef short IOTConnectionState;
+#define IOTC_CONNECT_SYMM_KEY          0x01
+#define IOTC_CONNECT_X509_CERT         0x02
+#define IOTC_CONNECT_CONNECTION_STRING 0x04
+typedef short IOTConnectType;
 
-    #define IOT_CENTRAL_MESSAGE_ACCEPTED   0x01
-    #define IOT_CENTRAL_MESSAGE_REJECTED   0x02
-    #define IOT_CENTRAL_MESSAGE_ABANDONED  0x04
-    typedef short IOTMessageStatus;
+#define IOTC_CONNECTION_EXPIRED_SAS_TOKEN    0x01
+#define IOTC_CONNECTION_DEVICE_DISABLED      0x02
+#define IOTC_CONNECTION_BAD_CREDENTIAL       0x04
+#define IOTC_CONNECTION_RETRY_EXPIRED        0x08
+#define IOTC_CONNECTION_NO_NETWORK           0x10
+#define IOTC_CONNECTION_COMMUNICATION_ERROR  0x20
+#define IOTC_CONNECTION_OK                   0x40
+#define IOTC_CONNECTION_DISCONNECTED         0x80
+typedef short IOTConnectionState;
 
-    int iot_central_set_logging(IOTLogLevel *level);
-    int iot_central_init_context(IOTContext *context);
-    int iot_central_free_context(IOTContext *context);
-    int iot_central_connect(IOTContext *context, const char *scope, const char *keyORCert,
-                            const char *device_id, IOTConnectType);
-    int iot_central_dissconnect(IOTContext context);
-    int iot_central_set_global_azure_endpoint(IOTContext context, const char *endpoint_url);
-    int iot_central_set_protocol(IOTContext context, IOTProtocol protocol);
-    int iot_central_set_trusted_certs(IOTContext context, const char *certs);
-    int iot_central_set_proxy(IOTContext context, IOT_CENTRAL_HTTP_PROXY_OPTIONS proxy);
-    int iot_central_send_data(IOTContext context, const char *payload, unsigned length, void *app_context);
-    int iot_central_send_state(IOTContext context, const char *payload, unsigned length, void *app_context);
-    int iot_central_send_event(IOTContext context, const char *payload, unsigned length, void *app_context);
-    int iot_central_send_property(IOTContext context, const char *payload, unsigned length, void *app_context);
+#define IOTC_MESSAGE_ACCEPTED   0x01
+#define IOTC_MESSAGE_REJECTED   0x02
+#define IOTC_MESSAGE_ABANDONED  0x04
+typedef short IOTMessageStatus;
 
-    typedef void(*IOTCallback)(IOTContext, IOTCallbackInfo*);
+// ***** API *****
+// Set the level of logging (see the options above)
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_set_logging(IOTLogLevel level);
 
-    /* eventNames: ConnectionStatus MessageSent MessageReceived Command SettingsUpdated Error */
-    int iot_central_on_event(IOTContext context, const char *event_name, IOTCallback callback, void *app_context);
+// Initialize the device context. The context variable will be used by rest of the API
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_init_context(IOTContext *ctx);
 
-    // call this after connect
-    int iot_central_on_connect(IOTContext context);
+// Free device context.
+// Call this after `init_context`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_free_context(IOTContext ctx);
 
-    #ifdef TARGET_MXCHIP_AZ3166
-        #define SERIAL_PRINT Serial.printf
-    #else
-        #define SERIAL_PRINT printf
-    #endif
+// Connect to Azure IoT Central
+// Call this after `init_context`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_connect(IOTContext ctx, const char* scope, const char* keyORcert,
+                                 const char* deviceId, IOTConnectType type);
 
-    #define SERIAL_VERBOSE_LOGGING_ENABLED 1
+// Disconnect
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_disconnect(IOTContext ctx);
 
-    #ifndef LOG_VERBOSE
-        #if SERIAL_VERBOSE_LOGGING_ENABLED != 1
-            #define LOG_VERBOSE(...)
-        #else
-            #define LOG_VERBOSE(...) \
-                do { \
-                    SERIAL_PRINT("  - "); \
-                    SERIAL_PRINT(__VA_ARGS__); \
-                    SERIAL_PRINT("\r\n"); \
-                } while(0)
-        #endif
+// If your endpoint is different than the default AzureIoTCentral endpoint, set it
+// using this API.
+// Call this before `connect`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_set_global_endpoint(IOTContext ctx, const char* endpoint_uri);
 
-        #define LOG_ERROR(...) \
-            do { \
-                SERIAL_PRINT("X - Error at %s:%d\r\n\t", __FILE__, __LINE__); \
-                SERIAL_PRINT(__VA_ARGS__); \
-                SERIAL_PRINT("\r\n"); \
-            } while(0)
-        #endif
+// Set the custom certificates for custom endpoints
+// Call this before `connect`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_set_trusted_certs(IOTContext ctx, const char* certs);
+
+// Set the proxy settings
+// Call this before `connect`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_set_proxy(IOTContext ctx, IOTC_HTTP_PROXY_OPTIONS proxy);
+
+// Sends a telemetry payload (JSON)
+// Call this after `connect`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_send_telemetry(IOTContext ctx, const char* payload, unsigned length);
+
+// Sends a state payload (JSON)
+// Call this after `connect`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_send_state    (IOTContext ctx, const char* payload, unsigned length);
+
+// Sends an event payload (JSON)
+// Call this after `connect`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_send_event    (IOTContext ctx, const char* payload, unsigned length);
+
+// Sends a property payload (JSON)
+// Call this after `connect`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_send_property (IOTContext ctx, const char* payload, unsigned length);
+
+/*
+eventName:
+  ConnectionStatus
+  MessageSent
+  Command
+  SettingsUpdated
+  Error
+*/
+typedef void(*IOTCallback)(IOTContext, IOTCallbackInfo*);
+
+// Register to one of the events listed above
+// Call this after `init_context`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_on(IOTContext ctx, const char* eventName, IOTCallback callback, void* appContext);
+
+// Lets SDK to do background work
+// Call this after `connect`
+// returns 0 if there is no error. Otherwise, error code will be returned.
+int iotc_do_work(IOTContext ctx);
+
+// Provide platform dependent NetworkInterface
+int iotc_set_network_interface(void* networkInterface);
+
+#ifdef ARDUINO
+    #define SERIAL_PRINT Serial.printf
+#else
+    #define SERIAL_PRINT printf
+#endif
+
+#define SERIAL_VERBOSE_LOGGING_ENABLED 1
+
+#ifndef LOG_VERBOSE
+#if SERIAL_VERBOSE_LOGGING_ENABLED != 1
+#define LOG_VERBOSE(...)
+#else
+#define LOG_VERBOSE(...) \
+    do { \
+        SERIAL_PRINT("  - "); \
+        SERIAL_PRINT(__VA_ARGS__); \
+        SERIAL_PRINT("\r\n"); \
+    } while(0)
+#endif // SERIAL_VERBOSE_LOGGING_ENABLED != 1
+
+// Log Errors no matter what
+#define LOG_ERROR(...) \
+    do { \
+        SERIAL_PRINT("X - Error at %s:%d\r\n\t", __FILE__, __LINE__); \
+        SERIAL_PRINT(__VA_ARGS__); \
+        SERIAL_PRINT("\r\n"); \
+    } while(0)
+#endif // !LOG_VERBOSE
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // AZURE_IOT_CENTRAL_API
+#endif // AZURE_IOTC_API

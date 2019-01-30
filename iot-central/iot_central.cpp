@@ -1,13 +1,13 @@
 // Copyright (c) Oguz Bastemur. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#include "./common/iotc_internal.h"
+#include "./iotc_internal.h"
 #if !defined(USE_LIGHT_CLIENT)
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
-#include "./common/json.h"
+#include "./json.h"
 
 #ifdef TARGET_MXCHIP
 #include "azure_prov_client/prov_device_ll_client.h"
