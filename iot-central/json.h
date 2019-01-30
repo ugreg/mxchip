@@ -1,7 +1,7 @@
 #ifndef AZURE_IOT_COMMON_JSON_H
 #define AZURE_IOT_COMMON_JSON_H
 
-#include "parson.h"
+#include "./parson.h"
 #include "./iot_central.h"
 
 namespace AzureIOT

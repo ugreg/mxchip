@@ -4,14 +4,14 @@
 #ifndef AZURE_IOTC_INTERNAL_H
 #define AZURE_IOTC_INTERNAL_H
 
-#include "iotc_platform.h"
-#include "iotc_definitions.h"
+#include "./iotc_platform.h"
+#include "./iotc_definitions.h"
 
 #include <assert.h>
 #include <stddef.h> // size_t etc.
 #include <limits.h>
-#include "../iotc.h"
-#include "string_buffer.h"
+#include "./iot_central.h"
+#include "./string_buffer.h"
 
 #define AZ_IOT_HUB_MAX_LEN 1024
 #define DEFAULT_ENDPOINT "global.azure-devices-provisioning.net"

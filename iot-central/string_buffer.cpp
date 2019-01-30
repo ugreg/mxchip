@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "iotc_internal.h"
+#include "./iot_central_internal.h"
 
 namespace AzureIOT {
 
