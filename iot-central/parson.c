@@ -20,7 +20,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-#ifdef ESP_PLATFORM
+#if !defined(TARGET_MXCHIP)
 #ifdef _MSC_VER
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -62,8 +62,6 @@
 
 static JSON_Malloc_Function parson_malloc = malloc;
 static JSON_Free_Function parson_free = free;
-
-static int parson_escape_slashes = 1;
 
 #define IS_CONT(b) (((unsigned char)(b) & 0xC0) == 0x80) /* is utf-8 continuation byte */
 
@@ -1059,13 +1057,6 @@ static int json_serialize_string(const char *string, char *buf) {
             case '\x1d': APPEND_STRING("\\u001d"); break;
             case '\x1e': APPEND_STRING("\\u001e"); break;
             case '\x1f': APPEND_STRING("\\u001f"); break;
-            case '/':
-                if (parson_escape_slashes) {
-                    APPEND_STRING("\\/");  /* to make json embeddable in xml\/html */
-                } else {
-                    APPEND_STRING("/");
-                }
-                break;
             default:
                 if (buf != NULL) {
                     buf[0] = c;
@@ -2053,9 +2044,5 @@ int json_boolean(const JSON_Value *value) {
 void json_set_allocation_functions(JSON_Malloc_Function malloc_fun, JSON_Free_Function free_fun) {
     parson_malloc = malloc_fun;
     parson_free = free_fun;
-}
-
-void json_set_escape_slashes(int escape_slashes) {
-    parson_escape_slashes = escape_slashes;
 }
 #endif // ESP_PLATFORM

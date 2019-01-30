@@ -24,7 +24,7 @@
 #ifndef parson_parson_h
 #define parson_parson_h
 
-#ifdef ESP_PLATFORM
+#if defined(__MBED__) || defined(ESP_PLATFORM) || defined(ARDUINO)
 
 #ifdef __cplusplus
 extern "C"
@@ -61,10 +61,6 @@ typedef void   (*JSON_Free_Function)(void *);
 /* Call only once, before calling any other function from parson API. If not called, malloc and free
    from stdlib will be used for all allocations */
 void json_set_allocation_functions(JSON_Malloc_Function malloc_fun, JSON_Free_Function free_fun);
-
-/* Sets if slashes should be escaped or not when serializing JSON. By default slashes are escaped.
- This function sets a global setting and is not thread safe. */
-void json_set_escape_slashes(int escape_slashes);
 
 /* Parses first JSON value in a file, returns NULL in case of error */
 JSON_Value * json_parse_file(const char *filename);
@@ -237,5 +233,5 @@ int             json_boolean(const JSON_Value *value);
 }
 #endif
 
-#endif
-#endif // ESP_PLATFORM
+#endif // defined(__MBED__) || defined(ESP_PLATFORM)
+#endif // parson_parson_h
