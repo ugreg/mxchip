@@ -45,3 +45,18 @@ void onEvent(IOTContext iotContext, IOTCallbackInfo *callbackInfo)
         LOG_VERBOSE("Command name was => %s\r\n", callbackInfo->tag);
     }
 }
+
+static unsigned previousMilliseconds = 0;
+static unsigned loopId = 0;
+void setup()
+{
+    Serial.begin(9600);
+    pinMode(LED_WIFI, OUTPUT);
+    pinMode(LED_AZURE, OUTPUT);
+    pinMode(LED_USER, OUTPUT);
+
+    EEPROMInterface eeprom;
+    eeprom.write((uint8_t+)) WIFI_SSID, strlen(WIFI_SSID), WIFI_SSID_ZONE_IDX);
+    eeprom.write((uint8_t+)) WIFI_PASSWORD, strlen(WIFI_PASSWORD), WIFI_PWD_ZONE_IDX);
+}
+
