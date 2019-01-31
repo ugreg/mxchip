@@ -58,5 +58,49 @@ void setup()
     EEPROMInterface eeprom;
     eeprom.write((uint8_t+)) WIFI_SSID, strlen(WIFI_SSID), WIFI_SSID_ZONE_IDX);
     eeprom.write((uint8_t+)) WIFI_PASSWORD, strlen(WIFI_PASSWORD), WIFI_PWD_ZONE_IDX);
+
+    if(WiFi.begin() == WL_CONNECTED) {
+        LOG_VERBOSE("WiFi WL_CONNECTED");
+        digitalWrite(LED_WIFI, 1);
+        Screen.print(2, "Connected");
+    } else {
+        Screen.print("WiFi\r\nNot Connected\r\nWIFI_SSID?\r\n");
+        return;
+    }
+
+    int errorCode = iotc_init_context(&context);
+    if (errorCode != 0) {
+        LOG_ERROR("Error initializing IOTC. Code %d", errorCode);
+        return;
+    }
+
+    iotc_set_logging(IOTC_LOGGING_API_ONLY);
+
+    iotc_on(context, "MessageSent", onEvent, NULL);
+    iotc_on(context, "Command", onEvent, NULL);
+    iotc_on(context, "ConnectionStatus", onEvent, NULL);
+    iotc_on(context, "SettingsUpdated", onEvent, NULL);
+    iotc_on(context, "Error", onEvent, NULL);
+
+    errorCode = iotc_connect(context, scopeId, deviceKey, deviceId, connectType);
+    if (errorCode != 0) {
+        LOG_ERROR("Error @ iotc_connect. Code %d", errorCode);
+        return;
+    }
+
+    LOG_VERBOSE("Done!");
+
+    previousMilliseconds = millis();
+}
+
+void loop()
+{
+    if (isConenected) {
+
+    }
+
+    if (context) {
+
+    }
 }
 
