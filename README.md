@@ -1,16 +1,17 @@
+# Environment
+
+Make sure you have an Azure IoT SDK to compile successfully. For example I used an [Arduino](https://www.arduino.cc/en/main/software#download) development environment with the following Arduino Libraries: [AzureIoTUtility](https://github.com/Azure/azure-iot-arduino-utility), [AzureIoTProtocol_MQTT](https://github.com/Azure/azure-iot-arduino-protocol-mqtt), [AzureIoTProtocol_HTTP](https://github.com/Azure/azure-iot-arduino-protocol-http) all at version `1.0.45`.
+
+It's recomened you use [Visual Studio Code extension for Arduino](https://github.com/Microsoft/vscode-arduino), install it from [here](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.vscode-arduino). You can also use [Azure IoT Workbench](https://microsoft.github.io/azure-iot-developer-kit/docs/get-started/#install-development-environment)
+or [iotz](https://github.com/Azure/iotz) to compile this sample.
+
 # Run
 
-Deploy the HelloOLEDGraphics in VS Code by `ctrl + shift + p`
+Select the MXCHIP board type
+
+VS Code by `ctrl + shift + p`
 
 Then choose task `Arduino: Upload`
 
-Result
-
-<img src="imgs/md/hello-oled.gif">
-
 # References
-- [Azure IoT Central](https://docs.microsoft.com/en-us/azure/iot-central/tutorial-add-device)
-- [Azure IoT Central Firmeware](https://github.com/Azure/iot-central-firmware/tree/master/MXCHIP)
-- [Azure IoT Workbench](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.vscode-iot-workbench) cmd + shift + p to a >Azure IoT Hub: Create Device and BAM!
 - [Graphics API](https://github.com/tobybrad/mxchip_iotdevkit_gfx)
-- [JSON Parsing Can be tricky, but kgabis helped us out!](https://github.com/kgabis/parson)
