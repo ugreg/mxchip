@@ -1,3 +1,5 @@
+<p align="center"><img src="img/red.png"></p>
+
 # Environment
 
 Make sure you have an Azure IoT SDK to compile successfully. For example I used an [Arduino](https://www.arduino.cc/en/main/software#download) development environment with the following Arduino Libraries: [AzureIoTUtility](https://github.com/Azure/azure-iot-arduino-utility), [AzureIoTProtocol_MQTT](https://github.com/Azure/azure-iot-arduino-protocol-mqtt), [AzureIoTProtocol_HTTP](https://github.com/Azure/azure-iot-arduino-protocol-http) all at version `1.0.45`.
